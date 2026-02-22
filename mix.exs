@@ -22,7 +22,7 @@ defmodule LogOut.MixProject do
     [
       name: "log_out",
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/giovanniorlando/log_out"} # Placeholder URL
+      links: %{"GitHub" => "https://github.com/go9/log_out"}
     ]
   end
 
