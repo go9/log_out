@@ -1,4 +1,4 @@
-defmodule ChatLoggerTest do
+defmodule LogOutTest do
   use ExUnit.Case
 
   test "logger can be configured and handles basic log event" do
@@ -10,10 +10,10 @@ defmodule ChatLoggerTest do
     state = %{
       level: :info,
       adapters: [
-        {ChatLogger.Adapters.Slack, [url: "http://localhost:4000/webhook-test"]},
-        {ChatLogger.Adapters.Discord, [url: "http://localhost:4000/webhook-test"]},
-        {ChatLogger.Adapters.Zulip, [url: "http://localhost:4000/webhook-test", bot_email: "test", bot_api_key: "t"]},
-        {ChatLogger.Adapters.Telegram, [bot_token: "t", chat_id: "c"]}
+        {LogOut.Adapters.Slack, [url: "http://localhost:4000/webhook-test"]},
+        {LogOut.Adapters.Discord, [url: "http://localhost:4000/webhook-test"]},
+        {LogOut.Adapters.Zulip, [url: "http://localhost:4000/webhook-test", bot_email: "test", bot_api_key: "t"]},
+        {LogOut.Adapters.Telegram, [bot_token: "t", chat_id: "c"]}
       ],
       config: [project_name: "Test"]
     }
@@ -23,13 +23,13 @@ defmodule ChatLoggerTest do
     # the formatters and core logic don't throw exceptions.
     metadata = [mfa: {MyModule, :my_func, 1}]
 
-    assert {:ok, _state} = ChatLogger.handle_event(
+    assert {:ok, _state} = LogOut.handle_event(
       {:error, nil, {Logger, "This is a test message", :os.system_time(), metadata}},
       state
     )
 
     # 2. Test the filtering logic (should not execute for debug)
-    assert {:ok, _state} = ChatLogger.handle_event(
+    assert {:ok, _state} = LogOut.handle_event(
       {:debug, nil, {Logger, "Should be ignored", :os.system_time(), metadata}},
       state
     )

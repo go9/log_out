@@ -1,8 +1,8 @@
-defmodule ChatLogger.Adapters.Zulip do
+defmodule LogOut.Adapters.Zulip do
   @moduledoc """
   Adapter to send Elixir logs to a Zulip stream and topic.
   """
-  @behaviour ChatLogger.Adapter
+  @behaviour LogOut.Adapter
 
   @impl true
   def send_message(log_event, config) do
@@ -15,9 +15,9 @@ defmodule ChatLogger.Adapters.Zulip do
     topic = Keyword.get(config, :topic) || Keyword.get(config, :project_name, "App")
 
     if url && bot_email && bot_api_key do
-      msg = ChatLogger.format_message(log_event)
-      level_emoji = ChatLogger.get_emoji(log_event.level)
-      module_name = ChatLogger.format_mfa(log_event)
+      msg = LogOut.format_message(log_event)
+      level_emoji = LogOut.get_emoji(log_event.level)
+      module_name = LogOut.format_mfa(log_event)
 
       content = "#{level_emoji} **#{String.upcase(to_string(log_event.level))}** in `#{module_name}`\n```elixir\n#{msg}\n```"
 

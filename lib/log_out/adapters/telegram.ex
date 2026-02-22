@@ -1,8 +1,8 @@
-defmodule ChatLogger.Adapters.Telegram do
+defmodule LogOut.Adapters.Telegram do
   @moduledoc """
   Adapter to send Elixir logs to a Telegram group or channel via a Bot.
   """
-  @behaviour ChatLogger.Adapter
+  @behaviour LogOut.Adapter
 
   @impl true
   def send_message(log_event, config) do
@@ -11,8 +11,8 @@ defmodule ChatLogger.Adapters.Telegram do
     thread_id = Keyword.get(config, :message_thread_id)
 
     if bot_token && chat_id do
-      msg = ChatLogger.format_message(log_event)
-      level_emoji = ChatLogger.get_emoji(log_event.level)
+      msg = LogOut.format_message(log_event)
+      level_emoji = LogOut.get_emoji(log_event.level)
       project_name = Keyword.get(config, :project_name, "App")
 
       # Clean msg for MarkdownV2 issues with special characters

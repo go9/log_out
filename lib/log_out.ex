@@ -1,4 +1,4 @@
-defmodule ChatLogger do
+defmodule LogOut do
   @moduledoc """
   An Elixir Logger backend for chat applications.
   """
@@ -52,7 +52,7 @@ defmodule ChatLogger do
   end
 
   defp configure(opts) do
-    env_config = Application.get_env(:logger, ChatLogger, [])
+    env_config = Application.get_env(:logger, LogOut, [])
 
     # opts from init might be a map or a keyword list, ensure it's a keyword list
     opts_kw = if is_map(opts), do: Map.to_list(opts), else: opts

@@ -1,9 +1,9 @@
-defmodule ChatLogger.MixProject do
+defmodule LogOut.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :chat_logger,
+      app: :log_out,
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,

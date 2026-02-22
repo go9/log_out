@@ -1,4 +1,4 @@
-defmodule ChatLogger.Adapter do
+defmodule LogOut.Adapter do
   @moduledoc """
   A behaviour module for implementing custom chat log adapters.
   """
