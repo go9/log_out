@@ -1,6 +1,16 @@
 defmodule LogOut do
   @moduledoc """
-  An Elixir Logger backend for chat applications.
+  An Elixir `:logger` backend that forwards application logs and exceptions to team chat platforms.
+
+  `LogOut` intercepts standard Elixir `Logger` events across your application and dispatches them seamlessly to configured adapters like Slack or Telegram. Because it uses `Task.start/1` internally, slow HTTP requests to external webhooks will never block your application's executing processes or HTTP request handlers.
+
+  ## Adapters
+
+  See `LogOut.Adapter` for details on how to implement custom chat integrations, or use one of the built-in providers:
+  - `LogOut.Adapters.Zulip`
+  - `LogOut.Adapters.Slack`
+  - `LogOut.Adapters.Discord`
+  - `LogOut.Adapters.Telegram`
   """
 
   @behaviour :gen_event
@@ -72,7 +82,7 @@ defmodule LogOut do
   end
 
   @doc """
-  Helper to safely format the diverse Elixir log messages into a simple string.
+  Safely formats diverse Elixir log messages (strings, reports, format strings) into a flat string.
   """
   def format_message(%{msg: {:string, string}}), do: to_string(string)
   def format_message(%{msg: {:report, report}}), do: inspect(report, pretty: true)
@@ -80,7 +90,7 @@ defmodule LogOut do
   def format_message(_), do: "Unknown log format"
 
   @doc """
-  Helper to extract the Module.function/arity from the log event metadata.
+  Extracts the `Module.function/arity` signature from the log event metadata if present.
   """
   def format_mfa(%{meta: %{mfa: {mod, fun, arity}}}), do: "#{inspect(mod)}.#{fun}/#{arity}"
   def format_mfa(%{meta: %{module: mod, function: fun}}), do: "#{inspect(mod)}.#{fun}"
@@ -88,7 +98,7 @@ defmodule LogOut do
   def format_mfa(_), do: "Unknown Origin"
 
   @doc """
-  Helper to get standard emojis based on log level.
+  Maps standard Elixir logger levels (e.g. `:warning`, `:error`) to standard emojis.
   """
   def get_emoji(:debug), do: "🐛"
   def get_emoji(:info), do: "ℹ️"
