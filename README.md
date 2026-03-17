@@ -46,30 +46,42 @@ config :logger, LogOut,
 
 `LogOut` provides four built-in adapters out of the box.
 
-### Zulip (Highly Recommended for Multiple Projects)
+### Slack
 
-Zulip is highly recommended because of its unique Stream/Topic threading model. Your `#alerts` stream won't become a completely unreadable wall of text if your database goes down, because individual project names are grouped by Topic.
+Simple webhook-based integration. Create separate channels per project or use one channel with project name prefixes.
 
 ```elixir
 config :logger, LogOut,
+  level: :warning,
+  project_name: "My App Production",
   adapters: [
-    {LogOut.Adapters.Zulip, 
-      url: "https://zulip.example.com",
-      bot_email: "bot@example.com", 
-      bot_api_key: System.get_env("ZULIP_API_KEY"),
-      stream: "alerts",
-      # topic defaults to the global `project_name` if not specified
-      topic: "my-app-production" 
-    }
+    {LogOut.Adapters.Slack, url: System.get_env("SLACK_WEBHOOK_URL")}
   ]
 ```
 
-### Telegram (Recommended for Instant Mobile Push)
+**Multi-Project Setup:**
+- Option 1: One channel (e.g., `#prod-alerts`) with different `project_name` per app
+- Option 2: Separate channels per project with different webhook URLs
+
+### Discord
+
+Similar to Slack, uses incoming webhook URLs.
 
 ```elixir
 config :logger, LogOut,
   adapters: [
-    {LogOut.Adapters.Telegram, 
+    {LogOut.Adapters.Discord, url: System.get_env("DISCORD_WEBHOOK_URL")}
+  ]
+```
+
+### Telegram
+
+Great for instant mobile push notifications.
+
+```elixir
+config :logger, LogOut,
+  adapters: [
+    {LogOut.Adapters.Telegram,
       bot_token: System.get_env("TELEGRAM_BOT_TOKEN"),
       chat_id: "-10012345678",
       # message_thread_id: 123 (Optional: if using Telegram Topics in groups)
@@ -77,15 +89,21 @@ config :logger, LogOut,
   ]
 ```
 
-### Discord / Slack
+### Zulip
 
-Both use standard generic Incoming Webhook URLs for channels.
+Unique Stream/Topic threading model that can be useful for organizing logs from multiple projects.
 
 ```elixir
 config :logger, LogOut,
   adapters: [
-    {LogOut.Adapters.Discord, url: System.get_env("DISCORD_WEBHOOK_URL")},
-    {LogOut.Adapters.Slack, url: System.get_env("SLACK_WEBHOOK_URL")}
+    {LogOut.Adapters.Zulip,
+      url: "https://zulip.example.com",
+      bot_email: "bot@example.com",
+      bot_api_key: System.get_env("ZULIP_API_KEY"),
+      stream: "alerts",
+      # topic defaults to the global `project_name` if not specified
+      topic: "my-app-production"
+    }
   ]
 ```
 
