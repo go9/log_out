@@ -30,16 +30,37 @@ defmodule LogOut.Adapters.Zulip do
       content = "#{level_emoji} **#{String.upcase(to_string(log_event.level))}** in `#{module_name}`\n```elixir\n#{msg}\n```"
 
       # Zulip requires basic auth and standard form encoded inputs
-      Req.post(
-        "#{url}/api/v1/messages",
-        auth: {:basic, bot_email, bot_api_key},
-        form: [
-          type: "stream",
-          to: stream,
-          topic: topic,
-          content: content
-        ]
-      )
+      case Req.post(
+             "#{url}/api/v1/messages",
+             auth: {:basic, bot_email, bot_api_key},
+             form: [
+               type: "stream",
+               to: stream,
+               topic: topic,
+               content: content
+             ]
+           ) do
+        {:ok, %{status: 200}} ->
+          :ok
+
+        {:ok, %{status: status, body: %{"code" => "STREAM_DOES_NOT_EXIST"}}} ->
+          require Logger
+          Logger.warning(
+            "Zulip stream '#{stream}' does not exist. Please create it manually in Zulip settings.",
+            skip_handlers: [LogOut]
+          )
+          :ok
+
+        {:ok, %{status: status, body: body}} ->
+          require Logger
+          Logger.warning("Zulip post failed: #{status} - #{inspect(body)}", skip_handlers: [LogOut])
+          :ok
+
+        {:error, reason} ->
+          require Logger
+          Logger.warning("Zulip connection error: #{inspect(reason)}", skip_handlers: [LogOut])
+          :ok
+      end
     else
       :ok
     end

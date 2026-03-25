@@ -93,6 +93,11 @@ config :logger, LogOut,
 
 Unique Stream/Topic threading model that keeps logs organized across multiple projects and log types.
 
+**Prerequisites:**
+1. Create a bot in Zulip: Settings → Personal settings → Bots → Add a new bot
+2. Create stream(s) in Zulip: Gear icon → Manage streams → Create stream
+3. Subscribe the bot to the stream(s)
+
 ```elixir
 config :logger, LogOut,
   project_name: "MyApp Production",
@@ -101,12 +106,14 @@ config :logger, LogOut,
       url: "https://zulip.example.com",
       bot_email: "bot@example.com",
       bot_api_key: System.get_env("ZULIP_API_KEY"),
-      stream: "alerts",
+      stream: "alerts",  # Must exist in Zulip
       # topic defaults to project_name if not specified
       topic: "my-app-production"
     }
   ]
 ```
+
+**Note:** Streams must be created manually in Zulip before LogOut can post to them. If a stream doesn't exist, LogOut will log a warning and silently skip posting (your app won't crash).
 
 **Dynamic Topics:**
 
