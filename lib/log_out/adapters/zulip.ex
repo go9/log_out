@@ -11,8 +11,16 @@ defmodule LogOut.Adapters.Zulip do
     bot_api_key = Keyword.get(config, :bot_api_key)
 
     stream = Keyword.get(config, :stream, "alerts")
-    # Default Zulip topic name to the project name if not specified
-    topic = Keyword.get(config, :topic) || Keyword.get(config, :project_name, "App")
+
+    # Topic resolution priority:
+    # 1. Logger metadata :zulip_topic (e.g., Logger.info("msg", zulip_topic: "errors"))
+    # 2. Configured :topic option
+    # 3. Project name from config
+    # 4. Fallback to "App"
+    topic =
+      log_event.meta[:zulip_topic] ||
+      Keyword.get(config, :topic) ||
+      Keyword.get(config, :project_name, "App")
 
     if url && bot_email && bot_api_key do
       msg = LogOut.format_message(log_event)

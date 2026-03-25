@@ -91,21 +91,55 @@ config :logger, LogOut,
 
 ### Zulip
 
-Unique Stream/Topic threading model that can be useful for organizing logs from multiple projects.
+Unique Stream/Topic threading model that keeps logs organized across multiple projects and log types.
 
 ```elixir
 config :logger, LogOut,
+  project_name: "MyApp Production",
   adapters: [
     {LogOut.Adapters.Zulip,
       url: "https://zulip.example.com",
       bot_email: "bot@example.com",
       bot_api_key: System.get_env("ZULIP_API_KEY"),
       stream: "alerts",
-      # topic defaults to the global `project_name` if not specified
+      # topic defaults to project_name if not specified
       topic: "my-app-production"
     }
   ]
 ```
+
+**Dynamic Topics:**
+
+You can override the topic on a per-log basis using Logger metadata:
+
+```elixir
+# Goes to configured default topic
+Logger.info("User logged out: user@example.com")
+
+# Goes to "errors" topic in the same stream
+Logger.error("Database connection failed", zulip_topic: "errors")
+
+# Goes to "security" topic in the same stream
+Logger.warning("Failed login attempt", zulip_topic: "security")
+```
+
+**Multi-Project Setup:**
+
+Recommended approach: Use stream names for projects, topics for log types:
+
+```elixir
+# Project A config
+config :logger, LogOut,
+  project_name: "ProjectA",
+  adapters: [{LogOut.Adapters.Zulip, stream: "ProjectA", topic: "alerts", ...}]
+
+# Project B config
+config :logger, LogOut,
+  project_name: "ProjectB",
+  adapters: [{LogOut.Adapters.Zulip, stream: "ProjectB", topic: "alerts", ...}]
+```
+
+This keeps each project's logs in separate streams while allowing dynamic topics within each stream.
 
 ---
 
