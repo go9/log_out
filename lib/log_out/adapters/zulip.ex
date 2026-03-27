@@ -22,9 +22,10 @@ defmodule LogOut.Adapters.Zulip do
       content = "#{level_emoji} **#{String.upcase(to_string(log_event.level))}** in `#{module_name}`\n```elixir\n#{msg}\n```"
 
       # Zulip requires basic auth and standard form encoded inputs
+      # Format: {:basic, "username:password"} for Req 0.5.x
       Req.post(
         "#{url}/api/v1/messages",
-        auth: {:basic, bot_email, bot_api_key},
+        auth: {:basic, "#{bot_email}:#{bot_api_key}"},
         form: [
           type: "stream",
           to: stream,
