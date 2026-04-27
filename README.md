@@ -25,21 +25,26 @@ end
 
 ## Configuration Basics
 
-`LogOut` runs as an extra backend for Elixir's built-in `:logger`. You configure it in your environment config (e.g., `config/prod.exs`).
+`LogOut` runs as an extra backend for Elixir's built-in `:logger`. Configuration goes in **`config/runtime.exs`** (inside a `config_env() == :prod` guard), not `config/prod.exs`.
+
+> **Why `runtime.exs`?** `prod.exs` is evaluated at compile time — before your app boots. If your secrets are set as environment variables at runtime (e.g. Fly.io, Gigalixir, Render), `System.get_env` calls in `prod.exs` will return `nil` and LogOut will silently fail to connect. `runtime.exs` runs after compilation, when environment variables are available.
 
 ```elixir
-# 1. Add LogOut to your active backends
-config :logger, backends: [:console, LogOut]
+# config/runtime.exs
+if config_env() == :prod do
+  # 1. Add LogOut to your active backends
+  config :logger, backends: [:console, LogOut]
 
-# 2. Configure LogOut
-config :logger, LogOut,
-  # We recommend only forwarding :warning or :error to chat
-  level: :warning, 
-  project_name: "My App Production", # Prefixes the chat messages
-  adapters: [
-    # You can configure one or multiple adapters to fire simultaneously!
-    {LogOut.Adapters.Slack, url: System.get_env("SLACK_WEBHOOK_URL")}
-  ]
+  # 2. Configure LogOut
+  config :logger, LogOut,
+    # We recommend only forwarding :warning or :error to chat
+    level: :warning,
+    project_name: "My App Production", # Prefixes the chat messages
+    adapters: [
+      # You can configure one or multiple adapters to fire simultaneously!
+      {LogOut.Adapters.Slack, url: System.get_env("SLACK_WEBHOOK_URL")}
+    ]
+end
 ```
 
 ## Supported Adapters & Usage
