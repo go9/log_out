@@ -24,7 +24,9 @@ defmodule LogOut do
   end
 
   def handle_event({level, _gl, {Logger, msg, ts, md}}, state) do
-    if meets_level?(level, state.level) do
+    level = normalize_level(level)
+
+    if forward?(level, state) do
       # Format message into an event shape the adapters expect
       log_event = %{
         level: level,
@@ -71,15 +73,33 @@ defmodule LogOut do
 
     %{
       level: Keyword.get(config, :level, :warning),
+      levels: config |> Keyword.get(:levels) |> normalize_levels(),
       adapters: Keyword.get(config, :adapters, []),
       config: config
     }
   end
 
+  # When an explicit `levels` allowlist is configured, only those exact levels
+  # are forwarded — this is how a caller forwards `:warning` WITHOUT `:error`
+  # (a min-level threshold can't express that). Otherwise fall back to the
+  # min-level threshold semantics.
+  defp forward?(level, %{levels: levels}) when is_list(levels), do: level in levels
+  defp forward?(level, %{level: configured}), do: meets_level?(level, configured)
+
   defp meets_level?(_event_level, nil), do: true
   defp meets_level?(event_level, configured_level) do
-    Logger.compare_levels(event_level, configured_level) != :lt
+    Logger.compare_levels(event_level, normalize_level(configured_level)) != :lt
   end
+
+  defp normalize_levels(nil), do: nil
+  defp normalize_levels(levels) when is_list(levels), do: Enum.map(levels, &normalize_level/1)
+
+  # The deprecated `:warn` alias still appears on events emitted by older
+  # dependencies. Map it to `:warning` before it reaches `Logger.compare_levels/2`,
+  # which would otherwise log its own deprecation warning on every event and
+  # flood the configured adapters.
+  defp normalize_level(:warn), do: :warning
+  defp normalize_level(level), do: level
 
   @doc """
   Safely formats diverse Elixir log messages (strings, reports, format strings) into a flat string.

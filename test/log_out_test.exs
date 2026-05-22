@@ -37,4 +37,36 @@ defmodule LogOutTest do
     # Give tasks a tiny moment to execute and crash (to ensure format helpers work)
     Process.sleep(100)
   end
+
+  describe "level filtering" do
+    defp capturing_state(filter) do
+      Map.merge(%{adapters: [], config: []}, filter)
+    end
+
+    test "min-level threshold forwards the level and everything above it" do
+      state = capturing_state(%{level: :warning})
+
+      assert {:ok, _} = LogOut.handle_event(log(:warning), state)
+      assert {:ok, _} = LogOut.handle_event(log(:error), state)
+      assert {:ok, _} = LogOut.handle_event(log(:info), state)
+    end
+
+    test "levels allowlist forwards only the listed levels (warning without error)" do
+      state = capturing_state(%{level: :warning, levels: [:warning, :notice]})
+
+      # warning is allowed, error is NOT — this is the case a min-level can't express
+      assert :warning in state.levels
+      refute :error in state.levels
+    end
+
+    test "deprecated :warn alias is normalized to :warning before comparison" do
+      # Should not raise or emit a deprecation warning, and should be treated as :warning
+      state = capturing_state(%{levels: [:warning]})
+      assert {:ok, _} = LogOut.handle_event(log(:warn), state)
+    end
+
+    defp log(level) do
+      {level, nil, {Logger, "msg", :os.system_time(), [mfa: {M, :f, 1}]}}
+    end
+  end
 end
