@@ -23,7 +23,7 @@ defmodule LogOut do
     {:ok, :ok, configure(opts)}
   end
 
-  def handle_event({level, _gl, {Logger, msg, ts, md}}, state) do
+  def handle_event({level, _gl, {Logger, msg, _ts, md}}, state) do
     level = normalize_level(level)
 
     if forward?(level, state) do
