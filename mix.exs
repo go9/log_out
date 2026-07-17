@@ -36,7 +36,7 @@ defmodule LogOut.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:req, "~> 0.5.0"},
+      {:req, "~> 0.5.10 or ~> 0.6"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
