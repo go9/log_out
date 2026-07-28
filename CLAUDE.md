@@ -1,7 +1,5 @@
 # log_out
 
-@~/Sites/agent-conventions/CLAUDE.md
-
 ## What this is
 
 Elixir Hex package — a Logger backend that ships log messages to Zulip. Library only, no Fly app, no database.
