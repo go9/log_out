@@ -1,6 +1,6 @@
 # log_out
 
-@~/Sites/agent-conventions/CLAUDE.md
+@AGENTS.md
 
 ## What this is
 
