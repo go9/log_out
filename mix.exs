@@ -4,7 +4,7 @@ defmodule LogOut.MixProject do
   def project do
     [
       app: :log_out,
-      version: "0.1.5",
+      version: "0.1.6",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
