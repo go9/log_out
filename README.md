@@ -122,7 +122,9 @@ config :logger, LogOut,
 
 **Dynamic Topics:**
 
-You can override the topic on a per-log basis using Logger metadata:
+You can override the topic on a per-log basis using Logger metadata — no
+extra Logger config (like a backend `:metadata` allowlist) is required, the
+key just needs to be passed at the call site:
 
 ```elixir
 # Goes to configured default topic
@@ -134,6 +136,11 @@ Logger.error("Database connection failed", zulip_topic: "errors")
 # Goes to "security" topic in the same stream
 Logger.warning("Failed login attempt", zulip_topic: "security")
 ```
+
+`zulip_topic` is only honored when it's a non-empty binary. A value over
+Zulip's 60-character topic limit is truncated rather than rejected; a
+missing, blank, or non-binary value (e.g. an atom) falls back to the
+configured `:topic`/`:project_name` chain instead of dropping the message.
 
 **Multi-Project Setup:**
 
